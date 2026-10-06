@@ -91,46 +91,71 @@
   }
 
   /**
-   * 繪製起點與終點地標
+   * 繪製起點與終點地標 (高辨識度醒目視覺)
    */
   function renderGateMarkers(ctx, mazeData, theme, cellSize) {
     const start = mazeData.start;
     const goal = mazeData.goal;
+    const r = cellSize * 0.44;
+    const strokeW = Math.max(2.5, cellSize * 0.12);
 
-    // 起點標記 (綠色微光圓環)
+    // ================= 起點標記 (START) =================
     const sx = (start.c + 0.5) * cellSize;
     const sy = (start.r + 0.5) * cellSize;
+
     ctx.save();
-    ctx.fillStyle = theme.startBadge.bg;
-    ctx.strokeStyle = theme.startBadge.border;
-    ctx.lineWidth = Math.max(2, cellSize * 0.15);
+    // 1. 底層光暈與抗干擾白圈
+    ctx.shadowColor = theme.startBadge.glow || 'rgba(16, 185, 129, 0.5)';
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = '#ffffff';
     ctx.beginPath();
-    ctx.arc(sx, sy, cellSize * 0.4, 0, Math.PI * 2);
+    ctx.arc(sx, sy, r + 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 2. 主體鮮綠圓形
+    ctx.fillStyle = theme.startBadge.bg;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = strokeW;
+    ctx.beginPath();
+    ctx.arc(sx, sy, r, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    // 標記小箭頭或符號
-    ctx.fillStyle = theme.startBadge.text;
-    ctx.font = `bold ${Math.floor(cellSize * 0.5)}px sans-serif`;
+    // 3. 內嵌標籤文字「S」
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `900 ${Math.floor(cellSize * 0.52)}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('S', sx, sy);
     ctx.restore();
 
-    // 終點標記 (紅色/橘色旗幟門)
+    // ================= 終點標記 (GOAL) =================
     const gx = (goal.c + 0.5) * cellSize;
     const gy = (goal.r + 0.5) * cellSize;
+
     ctx.save();
-    ctx.fillStyle = theme.goalBadge.bg;
-    ctx.strokeStyle = theme.goalBadge.border;
-    ctx.lineWidth = Math.max(2, cellSize * 0.15);
+    // 1. 底層光暈與抗干擾白圈
+    ctx.shadowColor = theme.goalBadge.glow || 'rgba(239, 68, 68, 0.5)';
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = '#ffffff';
     ctx.beginPath();
-    ctx.arc(gx, gy, cellSize * 0.4, 0, Math.PI * 2);
+    ctx.arc(gx, gy, r + 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 2. 主體烈焰紅圓形
+    ctx.fillStyle = theme.goalBadge.bg;
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = strokeW;
+    ctx.beginPath();
+    ctx.arc(gx, gy, r, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = theme.goalBadge.text;
-    ctx.font = `bold ${Math.floor(cellSize * 0.5)}px sans-serif`;
+    // 3. 內嵌標籤文字「G」
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#ffffff';
+    ctx.font = `900 ${Math.floor(cellSize * 0.52)}px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('G', gx, gy);

@@ -66,17 +66,20 @@
     const sy = ((start.r + 0.5) * cellSize).toFixed(2);
     const gx = ((goal.c + 0.5) * cellSize).toFixed(2);
     const gy = ((goal.r + 0.5) * cellSize).toFixed(2);
-    const markerRadius = (cellSize * 0.4).toFixed(2);
-    const markerBorderWidth = Math.max(2, cellSize * 0.15).toFixed(2);
-    const fontSize = Math.floor(cellSize * 0.5);
+    const markerRadius = (cellSize * 0.44).toFixed(2);
+    const bgOuterRadius = (cellSize * 0.48).toFixed(2);
+    const markerBorderWidth = Math.max(2.5, cellSize * 0.12).toFixed(2);
+    const fontSize = Math.floor(cellSize * 0.52);
 
     parts.push(`  <g id="maze-markers">`);
-    // 起點 S
-    parts.push(`    <circle cx="${sx}" cy="${sy}" r="${markerRadius}" fill="${theme.startBadge.bg}" stroke="${theme.startBadge.border}" stroke-width="${markerBorderWidth}" />`);
-    parts.push(`    <text x="${sx}" y="${sy}" fill="${theme.startBadge.text}" font-size="${fontSize}" font-weight="bold" font-family="sans-serif" text-anchor="middle" dominant-baseline="central">S</text>`);
-    // 終點 G
-    parts.push(`    <circle cx="${gx}" cy="${gy}" r="${markerRadius}" fill="${theme.goalBadge.bg}" stroke="${theme.goalBadge.border}" stroke-width="${markerBorderWidth}" />`);
-    parts.push(`    <text x="${gx}" y="${gy}" fill="${theme.goalBadge.text}" font-size="${fontSize}" font-weight="bold" font-family="sans-serif" text-anchor="middle" dominant-baseline="central">G</text>`);
+    // 起點 S (外層抗干擾白圈 + 綠色實心圓 + 白色 S)
+    parts.push(`    <circle cx="${sx}" cy="${sy}" r="${bgOuterRadius}" fill="#ffffff" />`);
+    parts.push(`    <circle cx="${sx}" cy="${sy}" r="${markerRadius}" fill="${theme.startBadge.bg}" stroke="#ffffff" stroke-width="${markerBorderWidth}" />`);
+    parts.push(`    <text x="${sx}" y="${sy}" fill="#ffffff" font-size="${fontSize}" font-weight="900" font-family="sans-serif" text-anchor="middle" dominant-baseline="central">S</text>`);
+    // 終點 G (外層抗干擾白圈 + 紅色實心圓 + 白色 G)
+    parts.push(`    <circle cx="${gx}" cy="${gy}" r="${bgOuterRadius}" fill="#ffffff" />`);
+    parts.push(`    <circle cx="${gx}" cy="${gy}" r="${markerRadius}" fill="${theme.goalBadge.bg}" stroke="#ffffff" stroke-width="${markerBorderWidth}" />`);
+    parts.push(`    <text x="${gx}" y="${gy}" fill="#ffffff" font-size="${fontSize}" font-weight="900" font-family="sans-serif" text-anchor="middle" dominant-baseline="central">G</text>`);
     parts.push(`  </g>`);
 
     // 若有玩家通關軌跡 (破關紀念版)

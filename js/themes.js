@@ -18,8 +18,8 @@
       playerTrailColor: '#d97706',
       playerTrailGlow: 'rgba(217, 119, 6, 0.4)',
       hintColor: '#b45309',
-      startBadge: { bg: '#e8dcbe', border: '#78350f', text: '#451a03' },
-      goalBadge: { bg: '#fed7aa', border: '#c2410c', text: '#9a3412' }
+      startBadge: { bg: '#15803d', border: '#166534', text: '#ffffff', glow: 'rgba(21, 128, 61, 0.45)' },
+      goalBadge: { bg: '#c2410c', border: '#9a3412', text: '#ffffff', glow: 'rgba(194, 65, 12, 0.45)' }
     },
 
     dungeon: {
@@ -34,8 +34,8 @@
       playerTrailColor: '#c84b1a',
       playerTrailGlow: 'rgba(200, 75, 26, 0.5)',
       hintColor: '#d97706',
-      startBadge: { bg: '#2b3a2c', border: '#40916c', text: '#d8f3dc' },
-      goalBadge: { bg: '#4a1515', border: '#e63946', text: '#ffccd5' }
+      startBadge: { bg: '#16a34a', border: '#15803d', text: '#ffffff', glow: 'rgba(22, 163, 74, 0.45)' },
+      goalBadge: { bg: '#dc2626', border: '#b91c1c', text: '#ffffff', glow: 'rgba(220, 38, 38, 0.45)' }
     },
 
     modern: {
@@ -50,8 +50,8 @@
       playerTrailColor: '#2563eb',
       playerTrailGlow: 'rgba(37, 99, 235, 0.4)',
       hintColor: '#f59e0b',
-      startBadge: { bg: '#ecfdf5', border: '#10b981', text: '#065f46' },
-      goalBadge: { bg: '#fef2f2', border: '#ef4444', text: '#991b1b' }
+      startBadge: { bg: '#10b981', border: '#059669', text: '#ffffff', glow: 'rgba(16, 185, 129, 0.45)' },
+      goalBadge: { bg: '#ef4444', border: '#dc2626', text: '#ffffff', glow: 'rgba(239, 68, 68, 0.45)' }
     },
 
     hedge: {
@@ -66,8 +66,8 @@
       playerTrailColor: '#b45309',
       playerTrailGlow: 'rgba(180, 83, 9, 0.4)',
       hintColor: '#eab308',
-      startBadge: { bg: '#d8f3dc', border: '#2d6a4f', text: '#1b4332' },
-      goalBadge: { bg: '#ffedd5', border: '#c2410c', text: '#7c2d12' }
+      startBadge: { bg: '#16a34a', border: '#14532d', text: '#ffffff', glow: 'rgba(22, 163, 74, 0.45)' },
+      goalBadge: { bg: '#ea580c', border: '#9a3412', text: '#ffffff', glow: 'rgba(234, 88, 12, 0.45)' }
     }
   };
 

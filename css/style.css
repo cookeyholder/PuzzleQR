@@ -388,30 +388,54 @@ textarea:focus, input[type="text"]:focus {
 /* Outgate Badges */
 .gate-badge {
   position: absolute;
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   font-weight: 800;
-  padding: 3px 8px;
+  padding: 5px 12px;
   border-radius: 999px;
   pointer-events: none;
   z-index: 10;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   transition: transform 0.2s ease;
+  white-space: nowrap;
 }
 
 .gate-start {
-  top: 6px;
-  left: 6px;
-  background: #dcfce7;
-  color: #15803d;
-  border: 1px solid #86efac;
+  background: #16a34a;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 14px rgba(22, 163, 74, 0.5), 0 0 0 1px #15803d;
+  animation: badgeFloatStart 2.2s ease-in-out infinite;
 }
 
 .gate-goal {
-  bottom: 6px;
-  right: 6px;
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fca5a5;
+  background: #dc2626;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.5), 0 0 0 1px #b91c1c;
+  animation: badgePulseGoal 2.2s ease-in-out infinite;
+}
+
+@keyframes badgeFloatStart {
+  0%, 100% {
+    transform: translate(-50%, -130%);
+  }
+  50% {
+    transform: translate(-50%, -146%);
+  }
+}
+
+@keyframes badgePulseGoal {
+  0%, 100% {
+    transform: translate(-50%, 40%) scale(1);
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.5), 0 0 0 1px #b91c1c;
+  }
+  50% {
+    transform: translate(-50%, 40%) scale(1.05);
+    box-shadow: 0 6px 20px rgba(220, 38, 38, 0.75), 0 0 0 1px #b91c1c;
+  }
 }
 
 .scan-instruction {

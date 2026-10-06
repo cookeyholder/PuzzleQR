@@ -184,8 +184,8 @@
   function updateGateBadges(maze, theme) {
     if (!startBadge || !goalBadge || !maze) return;
 
-    startBadge.style.display = 'block';
-    goalBadge.style.display = 'block';
+    startBadge.style.display = 'flex';
+    goalBadge.style.display = 'flex';
 
     const size = maze.size;
     const startPercentX = ((maze.start.c + 0.5) / size) * 100;
@@ -196,11 +196,9 @@
 
     startBadge.style.left = `${startPercentX}%`;
     startBadge.style.top = `${startPercentY}%`;
-    startBadge.style.transform = 'translate(-50%, -130%)';
 
     goalBadge.style.left = `${goalPercentX}%`;
     goalBadge.style.top = `${goalPercentY}%`;
-    goalBadge.style.transform = 'translate(-50%, 40%)';
   }
 
   /**

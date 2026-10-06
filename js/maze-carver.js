@@ -105,20 +105,52 @@
       }
     }
 
+    // QR Code 各版本 Alignment Pattern 座標表
+    const PATTERN_POSITION_TABLE = [
+      [], [6, 18], [6, 22], [6, 26], [6, 30], [6, 34],
+      [6, 22, 38], [6, 24, 42], [6, 26, 46], [6, 28, 50],
+      [6, 30, 54], [6, 32, 58], [6, 34, 62], [6, 26, 46, 66],
+      [6, 26, 48, 70], [6, 26, 50, 74], [6, 30, 54, 78],
+      [6, 30, 56, 82], [6, 30, 58, 86], [6, 34, 62, 90],
+      [6, 28, 50, 72, 94], [6, 26, 50, 74, 98], [6, 30, 54, 78, 102],
+      [6, 28, 54, 80, 106], [6, 32, 58, 84, 110], [6, 30, 58, 86, 114],
+      [6, 34, 62, 90, 118], [6, 26, 50, 74, 98, 122], [6, 30, 54, 78, 102, 126],
+      [6, 26, 52, 78, 104, 130], [6, 30, 56, 82, 108, 134], [6, 34, 60, 86, 112, 138],
+      [6, 30, 58, 86, 114, 142], [6, 34, 62, 90, 118, 146], [6, 30, 54, 78, 102, 126, 150],
+      [6, 24, 50, 76, 102, 128, 154], [6, 28, 54, 80, 106, 132, 158], [6, 32, 58, 84, 110, 136, 162],
+      [6, 26, 54, 82, 110, 138, 166], [6, 30, 58, 86, 114, 142, 170]
+    ];
+
     // 三個角落的 7x7 尋標圖案與格式資訊邊界
     markImmutableRect(0, 0, 8, 8);
     markImmutableRect(0, N - 9, 8, N - 1);
     markImmutableRect(N - 9, 0, N - 1, 8);
 
-    // 時序線 (Timing Patterns: 第 6 行與第 6 列)
-    for (let i = 0; i < N; i++) {
-      immutable[6 + margin][i + margin] = 1;
-      immutable[i + margin][6 + margin] = 1;
+    // 保護 Alignment Patterns (校正圖案 5x5)
+    const alignPos = PATTERN_POSITION_TABLE[version - 1] || [];
+    for (let i = 0; i < alignPos.length; i++) {
+      for (let j = 0; j < alignPos.length; j++) {
+        const ar = alignPos[i];
+        const ac = alignPos[j];
+        if ((ar <= 8 && ac <= 8) || (ar <= 8 && ac >= N - 9) || (ar >= N - 9 && ac <= 8)) {
+          continue;
+        }
+        markImmutableRect(ar - 2, ac - 2, ar + 2, ac + 2);
+      }
+    }
+
+    // 時序線不可被破壞 (不可挖掉黑模組；白模組維持原樣允許通行)
+    const timingProtect = Array.from({ length: G }, () => new Uint8Array(G));
+    for (let c = 8; c <= N - 9; c++) {
+      timingProtect[6 + margin][c + margin] = 1;
+    }
+    for (let r = 8; r <= N - 9; r++) {
+      timingProtect[r + margin][6 + margin] = 1;
     }
 
     // 4. 開啟護城河出入口
-    // 起點入口：左上方尋標圖案右側的自然留白通道上方 (col = 7 + margin)
-    const start = { r: 0, c: 7 + margin };
+    // 起點入口：左上方尋標圖案右側 (col = 9 + margin，位於左上保護區外側)
+    const start = { r: 0, c: 9 + margin };
     grid[0][start.c] = 0; // 外牆開口
     grid[1][start.c] = 0; // 護城河引道
 
@@ -128,7 +160,19 @@
     grid[goal.r][goal.c] = 0; // 外牆開口
     grid[goal.r - 1][goal.c] = 0; // 護城河引道
 
-    // 5. 加權 A* 尋路演算法 (走現有白格 cost=1，挖黑牆 cost=100)
+    // 定義迷宮可通行遊玩區域 (阻止在外圍留白區繞路)
+    function isPlayable(r, c) {
+      if (r < 0 || r >= G || c < 0 || c >= G) return false;
+      // 起點入口垂直引道
+      if (c === start.c && r <= margin) return true;
+      // 終點出口垂直引道
+      if (c === goal.c && r >= G - 1 - margin) return true;
+      // QR Code 核心內部區域
+      if (r >= margin && r < G - margin && c >= margin && c < G - margin) return true;
+      return false;
+    }
+
+    // 5. 加權 A* 尋路演算法 (走現有白格 cost=1，挖黑牆 cost=120，邊界施加梯度懲罰引導走內部)
     const openSet = new MinHeap();
     const dist = Array.from({ length: G }, () => new Float64Array(G).fill(Infinity));
     const cameFrom = new Map();
@@ -143,16 +187,33 @@
       if (cur.r === goal.r && cur.c === goal.c) break;
 
       const curDist = dist[cur.r][cur.c];
-      const hDist = Math.abs(cur.r - goal.r) + Math.abs(cur.c - goal.c);
-      if (cur.priority > curDist + hDist) continue;
 
       for (const [dr, dc] of dirs) {
         const nr = cur.r + dr;
         const nc = cur.c + dc;
-        if (nr < 0 || nr >= G || nc < 0 || nc >= G) continue;
-        if (immutable[nr][nc] === 1) continue; // 不可破壞區
+        if (!isPlayable(nr, nc)) continue;
+        if (immutable[nr][nc] === 1) continue; // 不可進入或不可破壞區
+        if (timingProtect[nr][nc] === 1 && grid[nr][nc] === 1) continue; // 時序線黑牆不可挖
 
-        const stepCost = grid[nr][nc] === 0 ? 1 : 100;
+        // 深度評估：計算距離 QR 邊界的模組步數
+        let edgeDist = 0;
+        if (nr >= margin && nr < G - margin && nc >= margin && nc < G - margin) {
+          edgeDist = Math.min(
+            nr - margin,
+            G - 1 - margin - nr,
+            nc - margin,
+            G - 1 - margin - nc
+          );
+        }
+
+        // 靠近邊緣時施加代價懲罰 (強制路徑穿梭於內部深層)
+        let edgePenalty = 0;
+        if (edgeDist <= 3) {
+          edgePenalty = (4 - edgeDist) * 15;
+        }
+
+        const isWall = grid[nr][nc] === 1;
+        const stepCost = isWall ? (120 + edgePenalty) : (1 + edgePenalty);
         const newDist = curDist + stepCost;
 
         if (newDist < dist[nr][nc]) {
@@ -205,7 +266,8 @@
       solutionPath,
       flips,
       version,
-      payload: text
+      payload: text,
+      isPlayable
     };
   }
 

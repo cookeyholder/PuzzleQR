@@ -171,8 +171,11 @@
       const dist = Math.abs(dr) + Math.abs(dc);
 
       if (dist === 1) {
-        // 檢查目標格是否為可通行通道 (0 = 白路通道)
-        if (this.mazeData.grid[pos.r][pos.c] === 0) {
+        // 檢查目標格是否為可通行通道 (0 = 白路通道 且 在遊玩區域內)
+        const canWalk = this.mazeData.grid[pos.r][pos.c] === 0 &&
+          (!this.mazeData.isPlayable || this.mazeData.isPlayable(pos.r, pos.c));
+
+        if (canWalk) {
           this.trail.push({ r: pos.r, c: pos.c });
 
           // 終點達成判定
@@ -193,18 +196,27 @@
         const step1 = { r: tail.r + dr, c: tail.c };
         const step2 = { r: tail.r, c: tail.c + dc };
 
-        if (this.mazeData.grid[step1.r][step1.c] === 0) {
+        const canStep1 = this.mazeData.grid[step1.r][step1.c] === 0 &&
+          (!this.mazeData.isPlayable || this.mazeData.isPlayable(step1.r, step1.c));
+        const canTarget = this.mazeData.grid[pos.r][pos.c] === 0 &&
+          (!this.mazeData.isPlayable || this.mazeData.isPlayable(pos.r, pos.c));
+
+        if (canStep1) {
           this.trail.push(step1);
-          if (this.mazeData.grid[pos.r][pos.c] === 0) {
+          if (canTarget) {
             this.trail.push({ r: pos.r, c: pos.c });
           }
           this.redraw();
-        } else if (this.mazeData.grid[step2.r][step2.c] === 0) {
-          this.trail.push(step2);
-          if (this.mazeData.grid[pos.r][pos.c] === 0) {
-            this.trail.push({ r: pos.r, c: pos.c });
+        } else {
+          const canStep2 = this.mazeData.grid[step2.r][step2.c] === 0 &&
+            (!this.mazeData.isPlayable || this.mazeData.isPlayable(step2.r, step2.c));
+          if (canStep2) {
+            this.trail.push(step2);
+            if (canTarget) {
+              this.trail.push({ r: pos.r, c: pos.c });
+            }
+            this.redraw();
           }
-          this.redraw();
         }
       }
     }
