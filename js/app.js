@@ -32,6 +32,7 @@
   let currentMaze = null;
   let currentThemeId = 'modern';
   let gameEngine = null;
+  let goalBadgeTimer = null;
 
   /**
    * 初始化應用程式
@@ -44,7 +45,10 @@
 
     // 綁定 UI 事件
     btnGenerate.addEventListener('click', generateNewMaze);
-    btnHint.addEventListener('click', () => gameEngine.showHint());
+    btnHint.addEventListener('click', () => {
+      gameEngine.showHint();
+      showGoalBadgeTemporarily();
+    });
     btnClearTrail.addEventListener('click', () => gameEngine.clearTrail());
 
     // 主題單選切換事件
@@ -145,8 +149,15 @@
     ctx.fillText('點擊「🎲 重新生成迷宮」即可開始遊玩！', targetSize / 2, targetSize / 2 + 30);
     ctx.restore();
 
+    if (goalBadgeTimer) {
+      clearTimeout(goalBadgeTimer);
+      goalBadgeTimer = null;
+    }
     if (startBadge) startBadge.style.display = 'none';
-    if (goalBadge) goalBadge.style.display = 'none';
+    if (goalBadge) {
+      goalBadge.classList.remove('fade-out');
+      goalBadge.style.display = 'none';
+    }
 
     window.ScannerVerify.updateBadge('idle');
   }
@@ -229,6 +240,32 @@
     } else {
       goalBadge.style.transform = 'translate(-50%, -130%)';
     }
+
+    // 啟動 3 秒自動消失計時器，避免遮擋迷宮走道，只保留畫布上的終點標記點
+    showGoalBadgeTemporarily();
+  }
+
+  /**
+   * 暫時顯示終點浮動標籤，3 秒後平滑淡出消失，只保留畫布上的終點點
+   */
+  function showGoalBadgeTemporarily() {
+    if (!goalBadge) return;
+    if (goalBadgeTimer) {
+      clearTimeout(goalBadgeTimer);
+      goalBadgeTimer = null;
+    }
+    goalBadge.classList.remove('fade-out');
+    goalBadge.style.display = 'flex';
+
+    // 3 秒後自動淡出
+    goalBadgeTimer = setTimeout(() => {
+      goalBadge.classList.add('fade-out');
+      setTimeout(() => {
+        if (goalBadge.classList.contains('fade-out')) {
+          goalBadge.style.display = 'none';
+        }
+      }, 600);
+    }, 3000);
   }
 
   /**
