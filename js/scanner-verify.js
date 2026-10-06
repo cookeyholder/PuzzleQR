@@ -62,7 +62,9 @@
 
     badge.classList.remove('status-checking', 'status-verified', 'status-failed');
 
-    if (status === 'checking') {
+    if (status === 'idle') {
+      textEl.textContent = '等待輸入內容生成迷宮...';
+    } else if (status === 'checking') {
       badge.classList.add('status-checking');
       textEl.textContent = '正在驗證相機相容性...';
     } else if (status === 'verified') {

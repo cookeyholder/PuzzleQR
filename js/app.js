@@ -49,12 +49,14 @@
     document.querySelectorAll('input[name="theme"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
         currentThemeId = e.target.value;
+        const theme = window.ThemeEngine.getTheme(currentThemeId);
         if (currentMaze) {
-          const theme = window.ThemeEngine.getTheme(currentThemeId);
           window.RendererCanvas.renderMaze(mazeCanvas, currentMaze, theme);
           gameEngine.setTheme(theme);
           updateGateBadges(currentMaze, theme);
           verifyScanCompatibility(currentMaze.payload);
+        } else {
+          renderEmptyState();
         }
       });
     });
@@ -80,8 +82,51 @@
       }
     });
 
-    // 初始生成迷宮
-    generateNewMaze();
+    // 初始狀態檢查：若輸入框有值則生成，無值則顯示提示畫布
+    if (payloadInput.value.trim()) {
+      generateNewMaze();
+    } else {
+      renderEmptyState();
+    }
+  }
+
+  /**
+   * 繪製尚未輸入內容時的初始引導畫布
+   */
+  function renderEmptyState() {
+    currentMaze = null;
+    const theme = window.ThemeEngine.getTheme(currentThemeId);
+    const targetSize = 1024;
+    mazeCanvas.width = targetSize;
+    mazeCanvas.height = targetSize;
+    gameCanvas.width = targetSize;
+    gameCanvas.height = targetSize;
+
+    const ctx = mazeCanvas.getContext('2d');
+    ctx.fillStyle = theme.bgColor;
+    ctx.fillRect(0, 0, targetSize, targetSize);
+
+    ctx.save();
+    ctx.strokeStyle = theme.wallColor;
+    ctx.lineWidth = 4;
+    ctx.setLineDash([16, 16]);
+    ctx.strokeRect(100, 100, targetSize - 200, targetSize - 200);
+
+    ctx.fillStyle = theme.wallColor;
+    ctx.font = 'bold 36px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('請在左側輸入網址或文字', targetSize / 2, targetSize / 2 - 30);
+
+    ctx.font = '22px sans-serif';
+    ctx.fillStyle = '#8b949e';
+    ctx.fillText('點擊「🎲 重新生成迷宮」即可開始遊玩！', targetSize / 2, targetSize / 2 + 30);
+    ctx.restore();
+
+    if (startBadge) startBadge.style.display = 'none';
+    if (goalBadge) goalBadge.style.display = 'none';
+
+    window.ScannerVerify.updateBadge('idle');
   }
 
   /**
@@ -91,6 +136,7 @@
     const rawText = payloadInput.value.trim();
     if (!rawText) {
       alert('請先輸入網址或純文字內容！');
+      renderEmptyState();
       return;
     }
 
@@ -137,6 +183,9 @@
    */
   function updateGateBadges(maze, theme) {
     if (!startBadge || !goalBadge || !maze) return;
+
+    startBadge.style.display = 'block';
+    goalBadge.style.display = 'block';
 
     const size = maze.size;
     const startPercentX = ((maze.start.c + 0.5) / size) * 100;
@@ -209,7 +258,10 @@
    * 處理 PNG 匯出
    */
   function handleDownloadPNG() {
-    if (!currentMaze) return;
+    if (!currentMaze) {
+      alert('請先輸入網址或文字並生成迷宮！');
+      return;
+    }
 
     const baseName = getSanitizedFilename();
     const mode = getExportMode();
@@ -239,7 +291,10 @@
    * 處理 SVG 匯出
    */
   function handleDownloadSVG() {
-    if (!currentMaze) return;
+    if (!currentMaze) {
+      alert('請先輸入網址或文字並生成迷宮！');
+      return;
+    }
 
     const baseName = getSanitizedFilename();
     const mode = getExportMode();
