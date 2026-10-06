@@ -28,7 +28,7 @@
 
   // 全域狀態
   let currentMaze = null;
-  let currentThemeId = 'cyber';
+  let currentThemeId = 'modern';
   let gameEngine = null;
 
   /**

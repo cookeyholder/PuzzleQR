@@ -15,7 +15,7 @@
 
 ## 4. 主題樣式引擎與 Canvas / SVG 渲染器
 
-- [x] 4.1 於 `js/themes.js` 建立 Cyber 賽博、Dungeon 地牢、Modern 極簡與 Hedge 樹籬之色彩與線條參數設定，驗證切換主題時配置參數正確替換
+- [x] 4.1 於 `js/themes.js` 建立 Modern 極簡、Wood 原木、Dungeon 地牢與 Hedge 樹籬之色彩與線條參數設定，驗證切換主題時配置參數正確替換
 - [x] 4.2 於 `js/renderer-canvas.js` 建置底層畫布繪圖引擎，渲染主題背景、圓角長條牆壁與起訖出入口標記，驗證所有主題的視覺輸出正常
 - [x] 4.3 於 `js/renderer-svg.js` 建置純向量 SVG 字串產生器，轉換牆體線段與出入口圖示為標準 XML 元素，驗證產出之 SVG 向量檔能在瀏覽器中無失真渲染
 

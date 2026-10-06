@@ -5,7 +5,7 @@
 ## ADDED Requirements
 
 ### Requirement: 多樣化視覺主題切換
-系統 SHALL 提供至少四款視覺風格主題（Cyber 賽博、Dungeon 地牢、Modern 極簡、Hedge 樹籬），具備專屬色彩配置與線條外觀，同時確保符合 QR Code 光學辨識對比度標準。
+系統 SHALL 提供至少四款視覺風格主題（Modern 極簡、Wood 原木、Dungeon 地牢、Hedge 樹籬），具備專屬色彩配置與線條外觀，同時確保符合 QR Code 光學辨識對比度標準。
 
 #### Scenario: 切換顯示風格主題
 - **WHEN** 使用者自控制列選取特定主題

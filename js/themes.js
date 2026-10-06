@@ -6,20 +6,20 @@
   'use strict';
 
   const THEMES = {
-    cyber: {
-      id: 'cyber',
-      name: '⚡ 賽博龐克 (Cyber)',
-      bgColor: '#0a0e17',
-      wallColor: '#00f0ff',
-      wallGlow: 'rgba(0, 240, 255, 0.4)',
-      glowBlur: 4,
+    wood: {
+      id: 'wood',
+      name: '🪵 溫潤原木 (Wood)',
+      bgColor: '#faf3e0',
+      wallColor: '#4a2810',
+      wallGlow: null,
+      glowBlur: 0,
       strokeRatio: 0.84,
       lineCap: 'round',
-      playerTrailColor: '#ff0055',
-      playerTrailGlow: 'rgba(255, 0, 85, 0.6)',
-      hintColor: '#ffe600',
-      startBadge: { bg: '#00382b', border: '#00f5a0', text: '#00f5a0' },
-      goalBadge: { bg: '#3d0014', border: '#ff0055', text: '#ff0055' }
+      playerTrailColor: '#d97706',
+      playerTrailGlow: 'rgba(217, 119, 6, 0.4)',
+      hintColor: '#b45309',
+      startBadge: { bg: '#e8dcbe', border: '#78350f', text: '#451a03' },
+      goalBadge: { bg: '#fed7aa', border: '#c2410c', text: '#9a3412' }
     },
 
     dungeon: {
@@ -72,7 +72,7 @@
   };
 
   function getTheme(themeId) {
-    return THEMES[themeId] || THEMES.cyber;
+    return THEMES[themeId] || THEMES.modern;
   }
 
   global.ThemeEngine = {
