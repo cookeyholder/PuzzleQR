@@ -16,6 +16,8 @@
 
   const mazeCanvas = document.getElementById('mazeCanvas');
   const gameCanvas = document.getElementById('gameCanvas');
+  const canvasWrapperOuter = document.querySelector('.canvas-wrapper-outer');
+  const canvasContainer = document.getElementById('canvasContainer');
   const startBadge = document.getElementById('startBadge');
   const goalBadge = document.getElementById('goalBadge');
 
@@ -50,6 +52,7 @@
       radio.addEventListener('change', (e) => {
         currentThemeId = e.target.value;
         const theme = window.ThemeEngine.getTheme(currentThemeId);
+        updateThemeWrapper(theme);
         if (currentMaze) {
           window.RendererCanvas.renderMaze(mazeCanvas, currentMaze, theme);
           gameEngine.setTheme(theme);
@@ -91,11 +94,30 @@
   }
 
   /**
+   * 根據主題更新外圍展示卡片與外框色彩
+   */
+  function updateThemeWrapper(theme) {
+    if (!theme) return;
+    if (canvasWrapperOuter) {
+      canvasWrapperOuter.style.backgroundColor = theme.wrapperBg || '#ffffff';
+      canvasWrapperOuter.style.borderColor = theme.wrapperBorder || 'var(--border-color)';
+      if (theme.wrapperShadow) {
+        canvasWrapperOuter.style.boxShadow = theme.wrapperShadow;
+      }
+    }
+    if (canvasContainer) {
+      canvasContainer.style.borderColor = theme.containerBorder || theme.wrapperBorder || 'var(--border-color)';
+    }
+  }
+
+  /**
    * 繪製尚未輸入內容時的初始引導畫布
    */
   function renderEmptyState() {
     currentMaze = null;
     const theme = window.ThemeEngine.getTheme(currentThemeId);
+    updateThemeWrapper(theme);
+
     const targetSize = 1024;
     mazeCanvas.width = targetSize;
     mazeCanvas.height = targetSize;
@@ -145,6 +167,7 @@
     try {
       currentMaze = window.MazeCarver.generateMaze(rawText, { minVersion: 4 });
       const theme = window.ThemeEngine.getTheme(currentThemeId);
+      updateThemeWrapper(theme);
 
       // 1. 繪製底層迷宮 QR Code
       window.RendererCanvas.renderMaze(mazeCanvas, currentMaze, theme);
@@ -170,7 +193,7 @@
    * 驗證當前畫布解碼狀態並更新狀態指示儀
    */
   function verifyScanCompatibility(expectedPayload) {
-    const res = window.ScannerVerify.verifyCanvas(mazeCanvas, expectedPayload);
+    const res = window.ScannerVerify.verifyCanvas(mazeCanvas, expectedPayload, currentMaze);
     if (res.success) {
       window.ScannerVerify.updateBadge('verified', expectedPayload);
     } else {
@@ -199,6 +222,13 @@
 
     goalBadge.style.left = `${goalPercentX}%`;
     goalBadge.style.top = `${goalPercentY}%`;
+
+    // 終點在迷宮內部隨機，若偏上緣向下浮動，其餘情況向上浮動
+    if (maze.goal.r <= 4) {
+      goalBadge.style.transform = 'translate(-50%, 50%)';
+    } else {
+      goalBadge.style.transform = 'translate(-50%, -130%)';
+    }
   }
 
   /**

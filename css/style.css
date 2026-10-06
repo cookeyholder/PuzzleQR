@@ -358,6 +358,7 @@ textarea:focus, input[type="text"]:focus {
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: background-color 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
 .canvas-container {
@@ -369,6 +370,7 @@ textarea:focus, input[type="text"]:focus {
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   border: 1px solid var(--border-color);
+  transition: border-color 0.35s ease, box-shadow 0.35s ease;
 }
 
 .canvas-container canvas {

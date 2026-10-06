@@ -148,25 +148,42 @@
       timingProtect[r + margin][6 + margin] = 1;
     }
 
-    // 4. 開啟護城河出入口
+    // 4. 開啟護城河起點入口與隨機選定內部終點
     // 起點入口：左上方尋標圖案右側 (col = 9 + margin，位於左上保護區外側)
     const start = { r: 0, c: 9 + margin };
     grid[0][start.c] = 0; // 外牆開口
     grid[1][start.c] = 0; // 護城河引道
 
-    // 終點出口：右下方邊緣出口
-    const goalCol = (N % 2 === 1) ? (N - 2 + margin) : (N - 3 + margin);
-    const goal = { r: G - 1, c: goalCol };
-    grid[goal.r][goal.c] = 0; // 外牆開口
-    grid[goal.r - 1][goal.c] = 0; // 護城河引道
+    // 終點：改在 QR Code 內部，位置隨機
+    // 搜尋內部所有合法的候選座標點 (排除尋標圖案、校正圖案與時序線)
+    const goalCandidates = [];
+    for (let r = margin + 2; r < G - margin - 2; r++) {
+      for (let c = margin + 2; c < G - margin - 2; c++) {
+        if (immutable[r][c] === 1) continue;
+        if (timingProtect[r][c] === 1) continue;
+        // 確保終點與起點距離適中 (至少 QR 寬度的 40%)，讓迷宮有充實的解謎路線
+        const distFromStart = Math.abs(r - start.r) + Math.abs(c - start.c);
+        if (distFromStart >= N * 0.45) {
+          goalCandidates.push({ r, c, isWhite: grid[r][c] === 0 });
+        }
+      }
+    }
 
-    // 定義迷宮可通行遊玩區域 (阻止在外圍留白區繞路)
+    // 優先挑選自然為白色通道的格子，若無則從所有候選點中隨機抽樣
+    const whiteCandidates = goalCandidates.filter(pt => pt.isWhite);
+    const pool = whiteCandidates.length > 0 ? whiteCandidates : goalCandidates;
+    const chosenGoal = pool[Math.floor(Math.random() * pool.length)] || {
+      r: Math.floor(G / 2),
+      c: Math.floor(G / 2)
+    };
+    const goal = { r: chosenGoal.r, c: chosenGoal.c };
+    grid[goal.r][goal.c] = 0; // 確保終點本身可通行
+
+    // 定義迷宮可通行遊玩區域 (僅允許入口引道與 QR Code 內部)
     function isPlayable(r, c) {
       if (r < 0 || r >= G || c < 0 || c >= G) return false;
       // 起點入口垂直引道
       if (c === start.c && r <= margin) return true;
-      // 終點出口垂直引道
-      if (c === goal.c && r >= G - 1 - margin) return true;
       // QR Code 核心內部區域
       if (r >= margin && r < G - margin && c >= margin && c < G - margin) return true;
       return false;
