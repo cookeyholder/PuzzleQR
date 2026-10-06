@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PuzzleQR - 迷宮 QR Code 產生器</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-content">
+        <h1 class="logo">Puzzle<span>QR</span></h1>
+        <p class="tagline">可遊玩、可解謎，且手機 100% 秒掃的迷宮 QR Code 產生器</p>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <!-- 左側/控制面板 -->
+      <section class="control-panel">
+        <!-- 內容輸入區 -->
+        <div class="card">
+          <h2 class="card-title">1. 輸入目標內容</h2>
+          <div class="form-group">
+            <label for="payloadInput">網址 (URL) 或 秘密純文字：</label>
+            <textarea id="payloadInput" rows="3" placeholder="例如：https://example.com 或 藏在迷宮裡的悄悄話...">https://github.com/cookeyholder</textarea>
+          </div>
+          <div class="button-row">
+            <button id="btnGenerate" class="btn btn-primary">🎲 重新生成迷宮</button>
+          </div>
+          <!-- 解碼自檢指示儀 -->
+          <div id="decodabilityBadge" class="verify-badge status-checking">
+            <span class="badge-dot"></span>
+            <span id="verifyText" class="badge-text">正在驗證相機相容性...</span>
+          </div>
+        </div>
+
+        <!-- 風格主題選擇 -->
+        <div class="card">
+          <h2 class="card-title">2. 迷宮視覺風格</h2>
+          <div class="theme-grid">
+            <label class="theme-option">
+              <input type="radio" name="theme" value="cyber" checked>
+              <div class="theme-card theme-cyber">
+                <span class="theme-name">⚡ 賽博龐克</span>
+                <span class="theme-desc">霓虹電路與深黑底板</span>
+              </div>
+            </label>
+            <label class="theme-option">
+              <input type="radio" name="theme" value="dungeon">
+              <div class="theme-card theme-dungeon">
+                <span class="theme-name">🏰 地牢冒險</span>
+                <span class="theme-desc">仿古羊皮紙與石磚城牆</span>
+              </div>
+            </label>
+            <label class="theme-option">
+              <input type="radio" name="theme" value="modern">
+              <div class="theme-card theme-modern">
+                <span class="theme-name">⚪ 極簡現代</span>
+                <span class="theme-desc">黑白圓角包浩斯膠囊</span>
+              </div>
+            </label>
+            <label class="theme-option">
+              <input type="radio" name="theme" value="hedge">
+              <div class="theme-card theme-hedge">
+                <span class="theme-name">🌿 皇家樹籬</span>
+                <span class="theme-desc">茂密綠灌木與庭園碎石</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 遊戲輔助操作 -->
+        <div class="card">
+          <h2 class="card-title">3. 迷宮探索操作</h2>
+          <div class="game-actions">
+            <button id="btnHint" class="btn btn-secondary">💡 求助提示 (顯示解法)</button>
+            <button id="btnClearTrail" class="btn btn-ghost">🔄 清除畫線重來</button>
+          </div>
+          <p class="help-text">提示：按住滑鼠或手機手指在白色走道中拖曳。走進死胡同時，往回拉即可自動縮回消除路徑！</p>
+        </div>
+
+        <!-- 下載與匯出 -->
+        <div class="card">
+          <h2 class="card-title">4. 匯出檔案</h2>
+          <div class="form-group">
+            <label for="exportFilename">自訂檔名：</label>
+            <input type="text" id="exportFilename" value="puzzle-qr-maze" placeholder="輸入檔名">
+          </div>
+          <div class="form-group">
+            <label>下載模式：</label>
+            <div class="radio-group">
+              <label><input type="radio" name="exportMode" value="unsolved" checked> 原始未解版 (可列印挑戰)</label>
+              <label><input type="radio" name="exportMode" value="solved"> 破關紀念版 (含行走軌跡)</label>
+            </div>
+          </div>
+          <div class="button-row">
+            <button id="btnDownloadPNG" class="btn btn-export">📥 下載 PNG (高畫質)</button>
+            <button id="btnDownloadSVG" class="btn btn-export">📐 下載 SVG (向量)</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 右側/畫布區域 -->
+      <section class="canvas-section">
+        <div class="canvas-wrapper-outer">
+          <div id="canvasContainer" class="canvas-container">
+            <!-- 底層：迷宮靜態 QR Code (相機掃描這層) -->
+            <canvas id="mazeCanvas"></canvas>
+            <!-- 頂層：玩家探索軌跡、提示光暈、通關動畫 -->
+            <canvas id="gameCanvas"></canvas>
+            
+            <!-- 出入口浮動標記 -->
+            <div id="startBadge" class="gate-badge gate-start">
+              <span>🟢 起點 START</span>
+            </div>
+            <div id="goalBadge" class="gate-badge gate-goal">
+              <span>🏁 終點 GOAL</span>
+            </div>
+          </div>
+        </div>
+        <div class="scan-instruction">
+          <p>📷 隨時可用任何手機相機或條碼掃描 App 掃描此迷宮測試！</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- 通關確認彈窗 (Victory Modal) -->
+    <div id="victoryModal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <div class="victory-icon">🎉</div>
+          <h2>恭喜破解迷宮！</h2>
+          <p id="victorySubtitle" class="modal-subtitle">成功連通起點與終點出口</p>
+        </div>
+        <div class="modal-body">
+          <div class="payload-card">
+            <div id="payloadTypeLabel" class="payload-badge">目標網址</div>
+            <div id="payloadDisplay" class="payload-content">https://...</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <a id="btnVisitUrl" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg">🚀 前往目標網址</a>
+          <button id="btnCopyPayload" class="btn btn-secondary btn-lg">📋 複製內容</button>
+          <button id="btnCloseModal" class="btn btn-ghost">關閉視窗</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 模組載入 -->
+  <script src="js/qrcode-lib.js"></script>
+  <script src="js/jsqr-lib.js"></script>
+  <script src="js/wall-fusion.js"></script>
+  <script src="js/maze-carver.js"></script>
+  <script src="js/scanner-verify.js"></script>
+  <script src="js/themes.js"></script>
+  <script src="js/renderer-canvas.js"></script>
+  <script src="js/renderer-svg.js"></script>
+  <script src="js/game-engine.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
